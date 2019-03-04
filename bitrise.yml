@@ -1,0 +1,67 @@
+format_version: 4
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+
+app:
+  envs:
+  - GOOGLE_SERVICE_ACCOUNT: $GOOGLE_SERVICE_ACCOUNT
+  - FLANK_CONFIG: $FLANK_CONFIG
+  - SAMPLE_ANDROID_APP_GIT_URL: "https://github.com/bitrise-samples/android-multiple-test-results-sample"
+
+workflows:
+  test:
+    steps:
+    - go-list:
+    - golint:
+    - errcheck:
+    - go-test:
+    - script:
+        title: "clean-up"
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            rm -rf ./_tmp
+    - change-workdir:
+        title: Switch working dir to test/_tmp dir
+        run_if: true
+        inputs:
+        - path: ./_tmp
+        - is_create_path: true
+    - script:
+        title: "Git clone sample android project"
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            git clone "$SAMPLE_ANDROID_APP_GIT_URL" -b "no-failures" .
+    - install-missing-android-tools:
+        inputs:
+        - gradlew_path: ./gradlew
+    - android-build-for-ui-testing:
+        inputs:
+        - module: app
+        - variant: debug
+    - script:
+        title: "Store Flank config"
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            echo "$FLANK_CONFIG" > ./flank.yml
+    - path::./:
+        title: Test Step
+        inputs:
+        - google_service_account_json: $GOOGLE_SERVICE_ACCOUNT
+        - config_path: ./flank.yml
+
+  audit-this-step:
+    steps:
+    - script:
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            stepman audit --step-yml ./step.yml
