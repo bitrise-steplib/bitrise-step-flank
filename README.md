@@ -1,6 +1,6 @@
 # Flank
 
-> Run your tests using Flank. The step will automaticall detect which project type your flank config uses and the corresponding flank command fille be run.
+> Run your tests using Flank. The step will automaticall detect which project type your flank config uses and the corresponding flank command will be ran.
 
 ## Inputs
 
@@ -43,7 +43,8 @@
     >     steps:
     >     - path::./:
     >         inputs: 
-    >         - my_input: "my input value"
+    >         - google_service_account_json: $GOOGLE_SERVICE_ACCOUNT
+    >         - config_path: ./flank.yml
     > ```
 1. Run the workflow: `bitrise run my-workflow`
 

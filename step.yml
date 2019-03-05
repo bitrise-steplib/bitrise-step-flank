@@ -1,6 +1,6 @@
 title: Flank
 summary: "Run your tests using Flank."
-description: "Run your tests using Flank. The step will automaticall detect which project type your flank config uses and the corresponding flank command fille be run."
+description: "Run your tests using Flank. The step will automatically detect which project type your flank config uses and the corresponding flank command will be ran."
 website: https://github.com/bitrise-steplib/bitrise-step-flank
 source_code_url: https://github.com/bitrise-steplib/bitrise-step-flank
 support_url: https://github.com/bitrise-steplib/bitrise-step-flank/issues
@@ -43,4 +43,4 @@ inputs:
     opts:
       title: "Command Flags"
       summary: "These flags will be appended to the flank command."
-      description: "These flags will be appended to the flank command."
+      description: "These flags will be appended to the flank command. If your flank config is for Android projects then these flags will be appended after `flank android test` otherwise after `flank ios test`."

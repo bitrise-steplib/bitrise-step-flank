@@ -2,12 +2,12 @@
 
 
 [[projects]]
-  digest = "1:779b1aa025840f88ccac065a99dbab7d172fb4d91985e99468ac59135d595c0a"
+  branch = "master"
+  digest = "1:8b4e71bc68b0ee01613bc1ade82d41f01d7a87a495677d1c95a840ae2eace82c"
   name = "github.com/bitrise-io/bitrise"
   packages = ["tools/timeoutcmd"]
   pruneopts = "UT"
-  revision = "5d52fad1a1fbe34417296f1fbf6d3672c5d5efc9"
-  version = "1.27.1"
+  revision = "7477fcfd646c9f961575e38c2de6bf0da94276aa"
 
 [[projects]]
   branch = "master"
@@ -35,12 +35,12 @@
   revision = "ec226b2359fcd806be64f0ad2217d8e741a1ff11"
 
 [[projects]]
+  branch = "master"
   digest = "1:950caca7dfcf796419232ba996c9c3539d09f26af27ba848c4508e604c13efbb"
   name = "github.com/hashicorp/go-version"
   packages = ["."]
   pruneopts = "UT"
   revision = "d40cf49b3a77bba84a7afdbd7f1dc295d114efb1"
-  version = "v1.1.0"
 
 [[projects]]
   branch = "master"

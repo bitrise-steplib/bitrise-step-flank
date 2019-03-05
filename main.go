@@ -9,18 +9,15 @@ import (
 	"strings"
 	"time"
 
-	"gopkg.in/yaml.v2"
-
-	"github.com/bitrise-io/go-utils/pathutil"
-
-	"github.com/hashicorp/go-version"
-
 	"github.com/bitrise-io/bitrise/tools/timeoutcmd"
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
+	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-tools/go-steputils/stepconf"
+	"github.com/hashicorp/go-version"
 	"github.com/kballard/go-shellquote"
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -67,26 +64,25 @@ func storeCredentials(cred string) error {
 	if err := os.MkdirAll(filepath.Dir(pth), 0777); err != nil {
 		return err
 	}
+	// also set the file path for the stored credential file. (required for only the current process session)
+	if err := os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", pth); err != nil {
+		return err
+	}
 	return fileutil.WriteStringToFile(pth, cred)
 }
 
 // gets the tags list, splits the lines per tab and finds the prefix-truncated version strings
 // if the version string is a valid semver version then this function returns the latest one
 func getLatestVersion() (string, error) {
-	cmd := command.New("git", "ls-remote", "--tags", "--quiet", "https://github.com/TestArmada/flank")
+	cmd := command.New("git", "ls-remote", "--tags", "--quiet", baseURL)
 	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to run git command, error: %s, output: %s", err, out)
 	}
 
 	// hashes and version refs are separated by tab, output will be something like:
 	// a85cdf850b7562d38559b84d405c97f7d194603s refs/tags/flank_snapshot
 	// f0d902fdd947e7f2db43213929bdc6069a681624	refs/tags/v1.4.2
-	// 4f00292267eaa2b230c4a5705a50c5302d7f9dc1	refs/tags/v1.5.0
-	// 44ed2076a684a740c41660ab80052b4218633538	refs/tags/v1.6.0
-	// 65762d7888a8a6e7490cbe7433a725201cbd5304	refs/tags/v1.7.0
-	// eae4b1e50e7eb05c02fc678994c6425bf14e1701	refs/tags/v2.0.0
-
 	var versions []string
 	for _, line := range strings.Split(out, "\n") {
 		if ref := strings.Split(line, "\t"); len(ref) == 2 {
@@ -107,20 +103,23 @@ func getLatestVersion() (string, error) {
 		}
 	}
 
+	if lastVersion.String() == "0.0.0" {
+		return "", fmt.Errorf("unable to find latest version")
+	}
+
 	return lastVersion.String(), nil
 }
 
 // if input version is latest then it returns the fetched latest release version download url otherwise
 // returns the release version download url for the given version
 func getDownloadURLbyVersion(version string) (string, error) {
-	if version != "latest" {
-		return fmt.Sprintf("%s/releases/download/%s/flank.jar", baseURL, version), nil
+	if version == "latest" {
+		var err error
+		if version, err = getLatestVersion(); err != nil {
+			return "", err
+		}
 	}
-	latest, err := getLatestVersion()
-	if err != nil {
-		return "", nil
-	}
-	return fmt.Sprintf("%s/releases/download/v%s/flank.jar", baseURL, latest), nil
+	return fmt.Sprintf("%s/releases/download/v%s/flank.jar", baseURL, version), nil
 }
 
 // downloads file from an url to a temp location and returns the full path for the file
@@ -174,7 +173,7 @@ func exportArtifacts(copied func(src, dest string)) error {
 		if !fInf.IsDir() {
 			continue
 		}
-		if fInf.ModTime().After(latestModtime) || fInf.ModTime().Equal(latestModtime) {
+		if !fInf.ModTime().Before(latestModtime) {
 			latestModtime = fInf.ModTime()
 			latestDir = filepath.Join(resultsDir, fInf.Name())
 		}
@@ -197,8 +196,7 @@ func exportArtifacts(copied func(src, dest string)) error {
 		if err != nil {
 			return err
 		}
-		err = ioutil.WriteFile(destinationFile, data, 0644)
-		if err != nil {
+		if err := ioutil.WriteFile(destinationFile, data, 0644); err != nil {
 			return err
 		}
 

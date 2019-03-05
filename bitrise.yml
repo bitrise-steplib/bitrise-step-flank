@@ -1,4 +1,4 @@
-format_version: 4
+format_version: 7
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
 app:
@@ -10,15 +10,16 @@ app:
 workflows:
   test:
     steps:
+    - audit-this-step:
     - go-list:
     - golint:
     - errcheck:
     - go-test:
     - script:
-        title: "clean-up"
+        title: "Clean-up"
         inputs:
         - content: |-
-            #!/bin/bash
+            #!/usr/bin/env bash
             set -ex
 
             rm -rf ./_tmp
@@ -32,14 +33,16 @@ workflows:
         title: "Git clone sample android project"
         inputs:
         - content: |-
-            #!/bin/bash
+            #!/usr/bin/env bash
             set -ex
 
             git clone "$SAMPLE_ANDROID_APP_GIT_URL" -b "no-failures" .
     - install-missing-android-tools:
+        title: "Install missing android tools"
         inputs:
         - gradlew_path: ./gradlew
     - android-build-for-ui-testing:
+        title: "Build test apks"
         inputs:
         - module: app
         - variant: debug
@@ -47,7 +50,7 @@ workflows:
         title: "Store Flank config"
         inputs:
         - content: |-
-            #!/bin/bash
+            #!/usr/bin/env bash
             set -ex
 
             echo "$FLANK_CONFIG" > ./flank.yml
@@ -62,6 +65,6 @@ workflows:
     - script:
         inputs:
         - content: |-
-            #!/bin/bash
+            #!/usr/bin/env bash
             set -ex
             stepman audit --step-yml ./step.yml
