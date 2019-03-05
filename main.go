@@ -21,11 +21,9 @@ import (
 )
 
 const (
-	platformAndroid   = "android"
-	platformIos       = "ios"
-	credentialPathFmt = "%s/.config/gcloud/application_default_credentials.json"
-	baseURL           = "https://github.com/TestArmada/flank"
-	resultsDir        = "./results"
+	platformAndroid = "android"
+	platformIos     = "ios"
+	baseURL         = "https://github.com/TestArmada/flank"
 )
 
 type config struct {
@@ -123,8 +121,9 @@ func getDownloadURLbyVersion(repoURL, version string) (string, error) {
 		if version, err = getLatestVersion(repoURL); err != nil {
 			return "", err
 		}
+		version = "v" + version
 	}
-	return fmt.Sprintf("%s/releases/download/v%s/flank.jar", baseURL, version), nil
+	return fmt.Sprintf("%s/releases/download/%s/flank.jar", baseURL, version), nil
 }
 
 // downloads file from an url to a temp location and returns the full path for the file
@@ -165,8 +164,8 @@ func failf(format string, args ...interface{}) {
 
 // lists all dirs inside of ./results dir and selects the latest(by modtime)
 // then all the files in the root will be copied from this dir to the root of the dir under BITRISE_DEPLOY_DIR
-func exportArtifacts(copied func(src, dest string)) error {
-	fInfs, err := ioutil.ReadDir(resultsDir)
+func exportArtifacts(srcDir, destDir string, copiedHandler func(src, dest string)) error {
+	fInfs, err := ioutil.ReadDir(srcDir)
 	if err != nil {
 		return err
 	}
@@ -180,7 +179,7 @@ func exportArtifacts(copied func(src, dest string)) error {
 		}
 		if !fInf.ModTime().Before(latestModtime) {
 			latestModtime = fInf.ModTime()
-			latestDir = filepath.Join(resultsDir, fInf.Name())
+			latestDir = filepath.Join(srcDir, fInf.Name())
 		}
 	}
 
@@ -195,7 +194,7 @@ func exportArtifacts(copied func(src, dest string)) error {
 		}
 
 		srcFile := filepath.Join(latestDir, fInf.Name())
-		destinationFile := filepath.Join(os.Getenv("BITRISE_DEPLOY_DIR"), fInf.Name())
+		destinationFile := filepath.Join(destDir, fInf.Name())
 
 		data, err := ioutil.ReadFile(srcFile)
 		if err != nil {
@@ -205,8 +204,8 @@ func exportArtifacts(copied func(src, dest string)) error {
 			return err
 		}
 
-		if copied != nil {
-			copied(srcFile, destinationFile)
+		if copiedHandler != nil {
+			copiedHandler(srcFile, destinationFile)
 		}
 	}
 
@@ -275,7 +274,7 @@ func main() {
 	// exporting generated artifacts
 
 	log.Infof("Exporting artifacts")
-	if err := exportArtifacts(
+	if err := exportArtifacts("./results", os.Getenv("BITRISE_DEPLOY_DIR"),
 		func(src, dest string) {
 			log.Printf("- copied: %s -> %s", src, dest)
 		},
