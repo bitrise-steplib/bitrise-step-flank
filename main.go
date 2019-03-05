@@ -60,12 +60,8 @@ func detectPlatform(configYMLPath string) (string, error) {
 
 // stores string under the default gcloud credential's local path
 func storeCredentials(cred string) error {
-	pth := fmt.Sprintf(credentialPathFmt, os.Getenv("HOME"))
-	if err := os.MkdirAll(filepath.Dir(pth), 0777); err != nil {
-		return err
-	}
-	// also set the file path for the stored credential file. (required for only the current process session)
-	if err := os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", pth); err != nil {
+	pth, err := pathutil.NormalizedOSTempDirPath("credential")
+	if err != nil {
 		return err
 	}
 	return fileutil.WriteStringToFile(pth, cred)
@@ -233,6 +229,11 @@ func main() {
 
 	log.Donef("- Done")
 	fmt.Println()
+
+	// string credentials
+	if err := storeCredentials(string(cfg.ServiceAccountJSON)); err != nil {
+		failf("Failed to store credential file, error: %s", err)
+	}
 
 	//
 	// running the tool
