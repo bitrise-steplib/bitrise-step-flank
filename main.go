@@ -60,11 +60,15 @@ func detectPlatform(configYMLPath string) (string, error) {
 
 // stores string under the default gcloud credential's local path
 func storeCredentials(cred string) error {
-	pth, err := pathutil.NormalizedOSTempDirPath("credential")
+	tmpPth, err := pathutil.NormalizedOSTempDirPath("credential")
 	if err != nil {
 		return err
 	}
-	return fileutil.WriteStringToFile(pth, cred)
+	pth := filepath.Join(tmpPth, "cred.json")
+	if err := fileutil.WriteStringToFile(pth, cred); err != nil {
+		return err
+	}
+	return os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", pth)
 }
 
 // gets the tags list, splits the lines per tab and finds the prefix-truncated version strings
