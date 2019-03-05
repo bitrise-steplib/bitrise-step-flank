@@ -71,28 +71,19 @@ func storeCredentials(cred string) error {
 	return os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", pth)
 }
 
-// gets the tags list, splits the lines per tab and finds the prefix-truncated version strings
-// if the version string is a valid semver version then this function returns the latest one
-func getLatestVersion() (string, error) {
-	cmd := command.New("git", "ls-remote", "--tags", "--quiet", baseURL)
-	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-	if err != nil {
-		return "", fmt.Errorf("failed to run git command, error: %s, output: %s", err, out)
-	}
-
-	// hashes and version refs are separated by tab, output will be something like:
-	// a85cdf850b7562d38559b84d405c97f7d194603s refs/tags/flank_snapshot
-	// f0d902fdd947e7f2db43213929bdc6069a681624	refs/tags/v1.4.2
-	var versions []string
-	for _, line := range strings.Split(out, "\n") {
+func parseGitTags(gitOutput string) (versions []string) {
+	for _, line := range strings.Split(gitOutput, "\n") {
 		if ref := strings.Split(line, "\t"); len(ref) == 2 {
 			versions = append(versions, strings.TrimPrefix(ref[1], "refs/tags/"))
 		}
 	}
+	return
+}
 
+func findLatestVersion(versions []string) string {
 	lastVersion, err := version.NewVersion("0.0.0")
 	if err != nil {
-		return "", err
+		return ""
 	}
 
 	for _, v := range versions {
@@ -103,19 +94,33 @@ func getLatestVersion() (string, error) {
 		}
 	}
 
-	if lastVersion.String() == "0.0.0" {
+	return lastVersion.String()
+}
+
+// gets the tags list, splits the lines per tab and finds the prefix-truncated version strings
+// if the version string is a valid semver version then this function returns the latest one
+func getLatestVersion(repoURL string) (string, error) {
+	cmd := command.New("git", "ls-remote", "--tags", "--quiet", repoURL)
+	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+	if err != nil {
+		return "", fmt.Errorf("failed to run git command, error: %s, output: %s", err, out)
+	}
+
+	lastVersion := findLatestVersion(parseGitTags(out))
+
+	if lastVersion == "0.0.0" {
 		return "", fmt.Errorf("unable to find latest version")
 	}
 
-	return lastVersion.String(), nil
+	return lastVersion, nil
 }
 
 // if input version is latest then it returns the fetched latest release version download url otherwise
 // returns the release version download url for the given version
-func getDownloadURLbyVersion(version string) (string, error) {
+func getDownloadURLbyVersion(repoURL, version string) (string, error) {
 	if version == "latest" {
 		var err error
-		if version, err = getLatestVersion(); err != nil {
+		if version, err = getLatestVersion(repoURL); err != nil {
 			return "", err
 		}
 	}
@@ -221,7 +226,7 @@ func main() {
 	//
 	// tool setup
 	log.Infof("Downloading binary")
-	downloadURL, err := getDownloadURLbyVersion(cfg.Version)
+	downloadURL, err := getDownloadURLbyVersion(baseURL, cfg.Version)
 	if err != nil {
 		failf("Failed to get download URL, error: %s", err)
 	}
