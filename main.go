@@ -56,7 +56,7 @@ func detectPlatform(configYMLPath string) (string, error) {
 	return platformIos, nil
 }
 
-// stores string under the default gcloud credential's local path
+// stores string under a temp path and exports the path to the corresponding env
 func storeCredentials(cred string) error {
 	tmpPth, err := pathutil.NormalizedOSTempDirPath("credential")
 	if err != nil {
