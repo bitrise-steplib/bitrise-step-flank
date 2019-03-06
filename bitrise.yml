@@ -5,7 +5,10 @@ app:
   envs:
   - GOOGLE_SERVICE_ACCOUNT: $GOOGLE_SERVICE_ACCOUNT
   - FLANK_CONFIG: $FLANK_CONFIG
+  - FLANK_CONFIG_IOS: $FLANK_CONFIG_IOS
   - SAMPLE_ANDROID_APP_GIT_URL: "https://github.com/bitrise-samples/android-multiple-test-results-sample"
+  - SAMPLE_IOS_APP_URL: https://github.com/bitrise-samples/sample-apps-ios-simple-objc-with-uitest.git
+  - SAMPLE_IOS_APP_BRANCH: renamed-scheme
 
 workflows:
   test:
@@ -56,7 +59,40 @@ workflows:
 
             echo "$FLANK_CONFIG" > ./flank.yml
     - path::./:
-        title: Test Step
+        title: Test Step - Android
+        inputs:
+        - google_service_account_json: $GOOGLE_SERVICE_ACCOUNT
+        - config_path: ./flank.yml
+    - change-workdir:
+        title: Switch working dir to test/_tmp dir
+        run_if: true
+        inputs:
+        - path: ./_tmp
+        - is_create_path: true
+    - script:
+        title: "Git clone sample ios project"
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            git clone -b "$SAMPLE_IOS_APP_BRANCH" "$SAMPLE_IOS_APP_URL" .
+    - certificate-and-profile-installer:
+    - xcode-build-for-test:
+        title: Build xcode test
+        inputs:
+        - project_path: ./ios-simple-objc/ios-simple-objc.xcodeproj
+        - scheme: renamed_scheme
+        - output_tool: xcodebuild
+    - script:
+        title: "Store Flank config"
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -ex
+
+            echo "$FLANK_CONFIG_IOS" > ./flank.yml
+    - path::./:
+        title: Test Step - iOS
         inputs:
         - google_service_account_json: $GOOGLE_SERVICE_ACCOUNT
         - config_path: ./flank.yml
