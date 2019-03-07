@@ -1,0 +1,107 @@
+format_version: 7
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+
+app:
+  envs:
+  - GOOGLE_SERVICE_ACCOUNT: $GOOGLE_SERVICE_ACCOUNT
+  - FLANK_CONFIG: $FLANK_CONFIG
+  - FLANK_CONFIG_IOS: $FLANK_CONFIG_IOS
+  - SAMPLE_ANDROID_APP_GIT_URL: "https://github.com/bitrise-samples/android-multiple-test-results-sample"
+  - SAMPLE_IOS_APP_URL: https://github.com/bitrise-samples/sample-apps-ios-simple-objc-with-uitest.git
+  - SAMPLE_IOS_APP_BRANCH: renamed-scheme
+
+workflows:
+  test:
+    before_run:
+    - audit-this-step
+    steps:
+    - go-list:
+    - golint:
+    - errcheck:
+    - go-test:
+    - script:
+        title: "Clean-up"
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -ex
+
+            rm -rf ./_tmp
+    - change-workdir:
+        title: Switch working dir to test/_tmp dir
+        run_if: true
+        inputs:
+        - path: ./_tmp
+        - is_create_path: true
+    - script:
+        title: "Git clone sample android project"
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -ex
+
+            git clone "$SAMPLE_ANDROID_APP_GIT_URL" -b "no-failures" .
+    - install-missing-android-tools:
+        title: "Install missing android tools"
+        inputs:
+        - gradlew_path: ./gradlew
+    - android-build-for-ui-testing:
+        title: "Build test apks"
+        inputs:
+        - module: app
+        - variant: debug
+    - script:
+        title: "Store Flank config"
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -ex
+
+            echo "$FLANK_CONFIG" > ./flank.yml
+    - path::./:
+        title: Test Step - Android
+        inputs:
+        - google_service_account_json: $GOOGLE_SERVICE_ACCOUNT
+        - config_path: ./flank.yml
+    - change-workdir:
+        title: Switch working dir to test/_tmp dir
+        run_if: true
+        inputs:
+        - path: ./_tmp
+        - is_create_path: true
+    - script:
+        title: "Git clone sample ios project"
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            git clone -b "$SAMPLE_IOS_APP_BRANCH" "$SAMPLE_IOS_APP_URL" .
+    - certificate-and-profile-installer:
+    - xcode-build-for-test:
+        title: Build xcode test
+        inputs:
+        - project_path: ./ios-simple-objc/ios-simple-objc.xcodeproj
+        - scheme: renamed_scheme
+        - output_tool: xcodebuild
+    - script:
+        title: "Store Flank config"
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -ex
+
+            echo "$FLANK_CONFIG_IOS" > ./flank.yml
+    - path::./:
+        title: Test Step - iOS
+        inputs:
+        - google_service_account_json: $GOOGLE_SERVICE_ACCOUNT
+        - config_path: ./flank.yml
+
+  audit-this-step:
+    steps:
+    - script:
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -ex
+            stepman audit --step-yml ./step.yml

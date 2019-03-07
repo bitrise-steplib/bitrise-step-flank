@@ -1,0 +1,46 @@
+title: Flank
+summary: "Run your tests using Flank."
+description: "Run your tests using Flank. The step will automatically detect which project type your flank config uses and the corresponding flank command will be ran."
+website: https://github.com/bitrise-steplib/bitrise-step-flank
+source_code_url: https://github.com/bitrise-steplib/bitrise-step-flank
+support_url: https://github.com/bitrise-steplib/bitrise-step-flank/issues
+host_os_tags:
+  - osx-10.10
+  - ubuntu-16.04
+
+project_type_tags:
+  - ios
+  - android
+
+type_tags:
+  - test
+
+toolkit:
+  go:
+    package_name: github.com/bitrise-steplib/bitrise-step-flank
+
+inputs:
+  - google_service_account_json:
+    opts:
+      title: "Google Service Account JSON"
+      summary: "Service Account JSON key file content."
+      description: "Service Account JSON key file content."
+      is_sensitive: true
+      is_required: true
+  - config_path:
+    opts:
+      title: "Config Path"
+      summary: "Flank config file path."
+      description: "Flank config file path."
+      is_required: true
+  - version: latest
+    opts:
+      title: "Version"
+      summary: "Flank binary version."
+      description: "Flank binary version. You can use any tag name that is available on https://github.com/TestArmada/flank/releases or latest which will download the latest non-pre-elease version."
+      is_required: true
+  - command_flags:
+    opts:
+      title: "Command Flags"
+      summary: "These flags will be appended to the flank command."
+      description: "These flags will be appended to the flank command. If your flank config is for Android projects then these flags will be appended after `flank android test` otherwise after `flank ios test`."
