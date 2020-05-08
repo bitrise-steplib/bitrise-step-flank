@@ -23,7 +23,7 @@ import (
 const (
 	platformAndroid = "android"
 	platformIos     = "ios"
-	baseURL         = "https://github.com/TestArmada/flank"
+	baseURL         = "https://github.com/Flank/flank"
 )
 
 type config struct {

@@ -172,9 +172,9 @@ func Test_getDownloadURLbyVersion(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
-		{name: "git-latest", repoURL: filepath.Join(testGitRepoPath, ".git"), want: "https://github.com/TestArmada/flank/releases/download/v1.0.1/flank.jar", wantErr: false, version: "latest"},
-		{name: "git-custom", repoURL: filepath.Join(testGitRepoPath, ".git"), want: "https://github.com/TestArmada/flank/releases/download/v1.0.0/flank.jar", wantErr: false, version: "v1.0.0"},
-		{name: "git-custom-non-versioned", repoURL: filepath.Join(testGitRepoPath, ".git"), want: "https://github.com/TestArmada/flank/releases/download/pre-release/flank.jar", wantErr: false, version: "pre-release"},
+		{name: "git-latest", repoURL: filepath.Join(testGitRepoPath, ".git"), want: "https://github.com/Flank/flank/releases/download/v1.0.1/flank.jar", wantErr: false, version: "latest"},
+		{name: "git-custom", repoURL: filepath.Join(testGitRepoPath, ".git"), want: "https://github.com/Flank/flank/releases/download/v1.0.0/flank.jar", wantErr: false, version: "v1.0.0"},
+		{name: "git-custom-non-versioned", repoURL: filepath.Join(testGitRepoPath, ".git"), want: "https://github.com/Flank/flank/releases/download/pre-release/flank.jar", wantErr: false, version: "pre-release"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
