@@ -23,7 +23,7 @@ import (
 const (
 	platformAndroid = "android"
 	platformIos     = "ios"
-	baseURL         = "https://github.com/TestArmada/flank"
+	baseURL         = "https://github.com/Flank/flank"
 )
 
 type config struct {
@@ -79,20 +79,21 @@ func parseGitTags(gitOutput string) (versions []string) {
 }
 
 func findLatestVersion(versions []string) string {
-	lastVersion, err := version.NewVersion("0.0.0")
-	if err != nil {
-		return ""
-	}
-
+	lastVersionStr := ""
+	var lastVersion *version.Version
 	for _, v := range versions {
-		if cVersion, err := version.NewVersion(v); err == nil {
-			if cVersion.GreaterThan(lastVersion) {
-				lastVersion = cVersion
-			}
+		candidate, err := version.NewVersion(v)
+		if err != nil {
+			continue
+		}
+
+		if lastVersionStr == "" || candidate.GreaterThan(lastVersion) {
+			lastVersionStr = v
+			lastVersion = candidate
 		}
 	}
 
-	return lastVersion.String()
+	return lastVersionStr
 }
 
 // gets the tags list, splits the lines per tab and finds the prefix-truncated version strings
@@ -104,9 +105,10 @@ func getLatestVersion(repoURL string) (string, error) {
 		return "", fmt.Errorf("failed to run git command, error: %s, output: %s", err, out)
 	}
 
-	lastVersion := findLatestVersion(parseGitTags(out))
+	versions := parseGitTags(out)
+	lastVersion := findLatestVersion(versions)
 
-	if lastVersion == "0.0.0" {
+	if lastVersion == "" {
 		return "", fmt.Errorf("unable to find latest version")
 	}
 
@@ -121,7 +123,9 @@ func getDownloadURLbyVersion(repoURL, version string) (string, error) {
 		if version, err = getLatestVersion(repoURL); err != nil {
 			return "", err
 		}
-		version = "v" + version
+		if !strings.HasPrefix(version, "v") {
+			version = "v" + version
+		}
 	}
 	return fmt.Sprintf("%s/releases/download/%s/flank.jar", baseURL, version), nil
 }
@@ -139,7 +143,7 @@ func download(url string) (string, error) {
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("unsuccessful status code: %d", resp.StatusCode)
+		return "", fmt.Errorf("http GET %s non success status code: %d", url, resp.StatusCode)
 	}
 
 	tmpPath, err := pathutil.NormalizedOSTempDirPath("flank-bin")

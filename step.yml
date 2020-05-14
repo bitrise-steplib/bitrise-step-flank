@@ -37,7 +37,7 @@ inputs:
     opts:
       title: "Version"
       summary: "Flank binary version."
-      description: "Flank binary version. You can use any tag name that is available on https://github.com/TestArmada/flank/releases or latest which will download the latest non-pre-elease version."
+      description: "Flank binary version. You can use any tag name that is available on https://github.com/Flank/flank/releases or latest which will download the latest non-pre-elease version."
       is_required: true
   - command_flags:
     opts:

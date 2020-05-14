@@ -9,7 +9,7 @@
 - config_path: __(required)__
     > Flank config file path.
 - version: latest __(required)__
-    > Flank binary version. You can use any tag name that is available on https://github.com/TestArmada/flank/releases or latest which will download the latest non-pre-release version.
+    > Flank binary version. You can use any tag name that is available on https://github.com/Flank/flank/releases or latest which will download the latest non-pre-release version.
 - command_flags:
     > These flags will be appended to the flank command.
 
