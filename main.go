@@ -228,7 +228,7 @@ func logExitStatus(exitStatus int) {
 	}
 
 	if value, ok := statusCodes[exitStatus]; ok {
-		log.Warnf("Flank exited with status %d: %s", exitStatus, value)
+		log.Warnf("Flank exited with status code `%d`: %s", exitStatus, value)
 	}
 }
 
