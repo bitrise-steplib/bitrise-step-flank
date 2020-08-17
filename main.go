@@ -216,6 +216,22 @@ func exportArtifacts(srcDir, destDir string, copiedHandler func(src, dest string
 	return nil
 }
 
+func logExitStatus(exitStatus int) {
+	statusCodes := map[int]string{
+		1:  "A general failure occurred. Possible causes include: a filename that does not exist or an HTTP/network error.",
+		2:  "Usually indicates missing or wrong usage of flags, incorrect parameters, errors in config files.",
+		10: "At least one matrix not finished (usually a FTL internal error) or unexpected error occurred.",
+		15: "Firebase Test Lab could not determine if the test matrix passed or failed, because of an unexpected error.",
+		18: "The test environment for this test execution is not supported because of incompatible test dimensions. This error might occur if the selected Android API level is not supported by the selected device type.",
+		19: "The test matrix was canceled by the user.",
+		20: "A test infrastructure error occurred.",
+	}
+
+	if value, ok := statusCodes[exitStatus]; ok {
+		log.Warnf("Flank exited with status code `%d`: %s", exitStatus, value)
+	}
+}
+
 func main() {
 	//
 	// configuration
@@ -272,6 +288,8 @@ func main() {
 
 	cmdErr := command.Run()
 
+	fmt.Println()
+	logExitStatus(timeoutcmd.ExitStatus(cmdErr))
 	fmt.Println()
 
 	//
