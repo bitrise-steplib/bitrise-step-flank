@@ -1,6 +1,27 @@
 title: Flank
 summary: "Run your tests using Flank."
-description: "Run your tests using Flank. The step will automatically detect which project type your flank config uses and the corresponding flank command will be ran."
+description: |
+  The Step runs your tests using Flank. The Step automatically detects which project type your Flank configuration uses and runs the corresponding Flank command (e.g., `flank android test` or `flank ios test`).
+
+  ### Configuring the Step
+
+  1. Add your Google service account key to the **Google Service Account JSON** input. 
+     You can find your Google service account key in your Google Account JSON key file. For more information, check out [this guide](https://cloud.google.com/docs/authentication/getting-started). 
+  1. Add the location of your Flank config file in the **Config Path** input.
+  1. Specify which Flank release version to use in the **Version** input.
+  1. (Optional) Add any additional flags you would like to append after your Flank command. 
+
+  ### Useful links
+
+  * [Getting started with authentication](https://cloud.google.com/docs/authentication/getting-started)
+  * [Flank](https://flank.github.io/flank/)
+
+  ### Related Steps
+
+  * [Generate Xcode test HTML/JUnit report](https://www.bitrise.io/integrations/steps/xctest-html-report)
+  * [Firebase App Distribution](https://www.bitrise.io/integrations/steps/firebase-app-distribution)
+
+
 website: https://github.com/bitrise-steplib/bitrise-step-flank
 source_code_url: https://github.com/bitrise-steplib/bitrise-step-flank
 support_url: https://github.com/bitrise-steplib/bitrise-step-flank/issues
@@ -42,5 +63,5 @@ inputs:
   - command_flags:
     opts:
       title: "Command Flags"
-      summary: "These flags will be appended to the flank command."
-      description: "These flags will be appended to the flank command. If your flank config is for Android projects then these flags will be appended after `flank android test` otherwise after `flank ios test`."
+      summary: "These flags will be appended to the Flank command."
+      description: "These flags will be appended to the Flank command. If your Flank config is for Android projects then these flags will be appended after `flank android test` otherwise after `flank ios test`."
