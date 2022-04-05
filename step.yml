@@ -5,11 +5,11 @@ description: |
 
   ### Configuring the Step
 
-  1. Add your Google service account key to the **Google Service Account JSON** input. 
-     You can find your Google service account key in your Google Account JSON key file. For more information, check out [this guide](https://cloud.google.com/docs/authentication/getting-started). 
+  1. Add your Google service account key to the **Google Service Account JSON** input.
+     You can find your Google service account key in your Google Account JSON key file. For more information, check out [this guide](https://cloud.google.com/docs/authentication/getting-started).
   1. Add the location of your Flank config file in the **Config Path** input.
-  1. Specify which Flank release version to use in the **Version** input. By default, the latest version is used. 
-  1. (Optional) Add any additional flags you would like to append after your Flank command in the **Command Flags** input. 
+  1. Specify which Flank release version to use in the **Version** input. By default, the latest version is used.
+  1. (Optional) Add any additional flags you would like to append after your Flank command in the **Command Flags** input.
 
   ### Useful links
 
