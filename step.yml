@@ -9,8 +9,13 @@ host_os_tags:
   - ubuntu-16.04
 
 project_type_tags:
-  - ios
   - android
+  - cordova
+  - flutter
+  - ionic
+  - ios
+  - kotlin-multiplatform
+  - react-native
 
 type_tags:
   - test
