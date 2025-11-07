@@ -1,55 +1,45 @@
 # Flank
 
-> Run your tests using Flank. The step will automaticall detect which project type your flank config uses and the corresponding flank command will be ran.
+[![Step changelog](https://shields.io/github/v/release/bitrise-steplib/bitrise-step-flank?include_prereleases&label=changelog&color=blueviolet)](https://github.com/bitrise-steplib/bitrise-step-flank/releases)
 
-## Inputs
+Run your tests using Flank.
 
-- google_service_account_json: __(required)__ __(sensitive)__
-    > Service Account JSON key file content.
-- config_path: __(required)__
-    > Flank config file path.
-- version: latest __(required)__
-    > Flank binary version. You can use any tag name that is available on https://github.com/Flank/flank/releases or latest which will download the latest non-pre-release version.
-- command_flags:
-    > These flags will be appended to the flank command.
+<details>
+<summary>Description</summary>
 
-## Outputs
+Run your tests using Flank. The step will automatically detect which project type your flank config uses and the corresponding flank command will be ran.
+</details>
 
-### Exported Environment variables
+## 🧩 Get started
 
-### Deployed Artifacts
+Add this step directly to your workflow in the [Bitrise Workflow Editor](https://docs.bitrise.io/en/bitrise-ci/workflows-and-pipelines/steps/adding-steps-to-a-workflow.html).
 
-- ./results/{latest-result-dir}/*: $BITRISE_DEPLOY_DIR/*
+You can also run this step directly with [Bitrise CLI](https://github.com/bitrise-io/bitrise).
 
-## Contribute
+## ⚙️ Configuration
 
-1. Fork this repository
-1. Make changes
-1. Submit a PR
+<details>
+<summary>Inputs</summary>
 
-## How to run this step from source
+| Key | Description | Flags | Default |
+| --- | --- | --- | --- |
+| `google_service_account_json` | Service Account JSON key file content. | required, sensitive |  |
+| `config_path` | Flank config file path. | required |  |
+| `version` | Flank binary version. You can use any tag name that is available on https://github.com/Flank/flank/releases or latest which will download the latest non-pre-elease version. | required | `latest` |
+| `command_flags` | These flags will be appended to the flank command. If your flank config is for Android projects then these flags will be appended after `flank android test` otherwise after `flank ios test`. |  |  |
+</details>
 
-1. Clone this repository
-1. `cd` to the cloned repository's root
-1. Create a bitrise.yml (if not yet created)
-1. Prepare a workflow that contains a step with the id: `path::./`
-    > For example:
-    > ```yaml
-    > format_version: "6"
-    > default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-    > 
-    > workflows:
-    >   my-workflow:
-    >     steps:
-    >     - path::./:
-    >         inputs: 
-    >         - google_service_account_json: $GOOGLE_SERVICE_ACCOUNT
-    >         - config_path: ./flank.yml
-    > ```
-1. Run the workflow: `bitrise run my-workflow`
+<details>
+<summary>Outputs</summary>
+There are no outputs defined in this step
+</details>
 
-## About
-This is an official Step managed by Bitrise.io and is available in the [Workflow Editor](https://www.bitrise.io/features/workflow-editor) and in our [Bitrise CLI](https://github.com/bitrise-io/bitrise) tool. If you seen something in this readme that never before please visit some of our knowledge base to read more about that:
-  - devcenter.bitrise.io
-  - discuss.bitrise.io
-  - blog.bitrise.io
+## 🙋 Contributing
+
+We welcome [pull requests](https://github.com/bitrise-steplib/bitrise-step-flank/pulls) and [issues](https://github.com/bitrise-steplib/bitrise-step-flank/issues) against this repository.
+
+For pull requests, work on your changes in a forked repository and use the Bitrise CLI to [run step tests locally](https://docs.bitrise.io/en/bitrise-ci/bitrise-cli/running-your-first-local-build-with-the-cli.html).
+
+Learn more about developing steps:
+
+- [Create your own step](https://docs.bitrise.io/en/bitrise-ci/workflows-and-pipelines/developing-your-own-bitrise-step/developing-a-new-step.html)
