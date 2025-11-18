@@ -49,7 +49,7 @@ workflows:
         title: Build test apks
         inputs:
         - module: app
-        - variant: debug
+        - variant: DemoDebug
     - script:
         title: Store Flank config
         inputs:
