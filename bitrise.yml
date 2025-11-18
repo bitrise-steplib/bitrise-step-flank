@@ -6,7 +6,7 @@ app:
   - GOOGLE_SERVICE_ACCOUNT: $GOOGLE_SERVICE_ACCOUNT
   - FLANK_CONFIG: $FLANK_CONFIG
   - FLANK_CONFIG_IOS: $FLANK_CONFIG_IOS
-  - SAMPLE_ANDROID_APP_GIT_URL: "https://github.com/bitrise-io/android-multiple-test-results-sample"
+  - SAMPLE_ANDROID_APP_GIT_URL: https://github.com/bitrise-io/android-multiple-test-results-sample
   - SAMPLE_IOS_APP_URL: https://github.com/bitrise-io/sample-apps-ios-simple-objc-with-uitest.git
   - SAMPLE_IOS_APP_BRANCH: bitrise_bot_signing
 
@@ -16,7 +16,7 @@ workflows:
     - check
     steps:
     - script:
-        title: "Clean-up"
+        title: Clean-up
         inputs:
         - content: |-
             #!/usr/bin/env bash
@@ -30,7 +30,7 @@ workflows:
         - path: ./_tmp
         - is_create_path: true
     - script:
-        title: "Git clone sample android project"
+        title: Git clone sample android project
         inputs:
         - content: |-
             #!/usr/bin/env bash
@@ -38,16 +38,16 @@ workflows:
 
             git clone "$SAMPLE_ANDROID_APP_GIT_URL" -b "no-failures" .
     - install-missing-android-tools:
-        title: "Install missing android tools"
+        title: Install missing android tools
         inputs:
         - gradlew_path: ./gradlew
     - android-build-for-ui-testing:
-        title: "Build test apks"
+        title: Build test apks
         inputs:
         - module: app
         - variant: debug
     - script:
-        title: "Store Flank config"
+        title: Store Flank config
         inputs:
         - content: |-
             #!/usr/bin/env bash
@@ -66,7 +66,7 @@ workflows:
         - path: ./_tmp
         - is_create_path: true
     - script:
-        title: "Git clone sample ios project"
+        title: Git clone sample ios project
         inputs:
         - content: |-
             #!/bin/bash
@@ -80,7 +80,7 @@ workflows:
         - scheme: ios-simple-objc
         - output_tool: xcodebuild
     - script:
-        title: "Store Flank config"
+        title: Store Flank config
         inputs:
         - content: |-
             #!/usr/bin/env bash

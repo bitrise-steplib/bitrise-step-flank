@@ -2,19 +2,19 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/bitrise-io/bitrise/tools/timeoutcmd"
+	"github.com/bitrise-io/bitrise/stepruncmd/timeoutcmd"
+	"github.com/bitrise-io/go-steputils/stepconf"
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
-	"github.com/bitrise-tools/go-steputils/stepconf"
 	"github.com/hashicorp/go-version"
 	"github.com/kballard/go-shellquote"
 	"gopkg.in/yaml.v2"
@@ -153,7 +153,7 @@ func download(url string) (string, error) {
 
 	binPath := filepath.Join(tmpPath, "flank.jar")
 
-	bodyData, err := ioutil.ReadAll(resp.Body)
+	bodyData, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
@@ -169,7 +169,7 @@ func failf(format string, args ...interface{}) {
 // lists all dirs inside of ./results dir and selects the latest(by modtime)
 // then all the files in the root will be copied from this dir to the root of the dir under BITRISE_DEPLOY_DIR
 func exportArtifacts(srcDir, destDir string, copiedHandler func(src, dest string)) error {
-	fInfs, err := ioutil.ReadDir(srcDir)
+	fInfs, err := os.ReadDir(srcDir)
 	if err != nil {
 		return err
 	}
@@ -181,13 +181,17 @@ func exportArtifacts(srcDir, destDir string, copiedHandler func(src, dest string
 		if !fInf.IsDir() {
 			continue
 		}
-		if !fInf.ModTime().Before(latestModtime) {
-			latestModtime = fInf.ModTime()
+		info, err := fInf.Info()
+		if err != nil {
+			return err
+		}
+		if !info.ModTime().Before(latestModtime) {
+			latestModtime = info.ModTime()
 			latestDir = filepath.Join(srcDir, fInf.Name())
 		}
 	}
 
-	fInfs, err = ioutil.ReadDir(latestDir)
+	fInfs, err = os.ReadDir(latestDir)
 	if err != nil {
 		return err
 	}
@@ -200,11 +204,11 @@ func exportArtifacts(srcDir, destDir string, copiedHandler func(src, dest string
 		srcFile := filepath.Join(latestDir, fInf.Name())
 		destinationFile := filepath.Join(destDir, fInf.Name())
 
-		data, err := ioutil.ReadFile(srcFile)
+		data, err := os.ReadFile(srcFile)
 		if err != nil {
 			return err
 		}
-		if err := ioutil.WriteFile(destinationFile, data, 0644); err != nil {
+		if err := os.WriteFile(destinationFile, data, 0644); err != nil {
 			return err
 		}
 
