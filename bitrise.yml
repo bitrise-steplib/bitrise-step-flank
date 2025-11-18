@@ -37,6 +37,10 @@ workflows:
             set -ex
 
             git clone "$SAMPLE_ANDROID_APP_GIT_URL" -b "no-failures" .
+    - set-java-version@1:
+        run_if: $.IsCI
+        inputs:
+        - set_java_version: 11
     - install-missing-android-tools:
         title: Install missing android tools
         inputs:
