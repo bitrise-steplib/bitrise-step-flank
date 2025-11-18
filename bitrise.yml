@@ -36,7 +36,7 @@ workflows:
             #!/usr/bin/env bash
             set -ex
 
-            git clone "$SAMPLE_ANDROID_APP_GIT_URL" -b "no-failures" .
+            git clone "$SAMPLE_ANDROID_APP_GIT_URL" -b "maintenance" .
     - set-java-version@1:
         run_if: $.IsCI
         inputs:
