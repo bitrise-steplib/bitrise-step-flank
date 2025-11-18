@@ -13,12 +13,8 @@ app:
 workflows:
   test:
     before_run:
-    - audit-this-step
+    - check
     steps:
-    - go-list:
-    - golint:
-    - errcheck:
-    - go-test:
     - script:
         title: "Clean-up"
         inputs:
@@ -97,14 +93,9 @@ workflows:
         - google_service_account_json: $GOOGLE_SERVICE_ACCOUNT
         - config_path: ./flank.yml
 
-  audit-this-step:
+  check:
     steps:
-    - script:
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            set -ex
-            stepman audit --step-yml ./step.yml
+    - git::https://github.com/bitrise-steplib/steps-check.git: { }
 
   generate_readme:
     steps:
