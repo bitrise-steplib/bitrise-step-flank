@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -20,7 +19,7 @@ func createDummyFiles(destDir string, filePaths []string) error {
 		if err := os.MkdirAll(filepath.Dir(pth), 0777); err != nil {
 			return err
 		}
-		if err := ioutil.WriteFile(pth, []byte("test"), 0777); err != nil {
+		if err := os.WriteFile(pth, []byte("test"), 0777); err != nil {
 			return err
 		}
 	}
@@ -42,7 +41,7 @@ func TestMain(m *testing.M) {
 	androidConfigPath := filepath.Join(testGitRepoPath, "dummy-file")
 
 	for i, tag := range []string{"0.1.0", "0.1.1", "pre-release", "0.2.0", "0.2.1", "1.0.0", "1.0.1"} {
-		if err := ioutil.WriteFile(androidConfigPath, []byte(fmt.Sprintf("%d", i)), 0644); err != nil {
+		if err := os.WriteFile(androidConfigPath, []byte(fmt.Sprintf("%d", i)), 0644); err != nil {
 			failf("failed to write file, error: %s", err)
 		}
 
@@ -70,10 +69,10 @@ func Test_detectPlatform(t *testing.T) {
 	androidConfigPath := filepath.Join(tempDir, "android-config.yml")
 	iosConfigPath := filepath.Join(tempDir, "ios-config.yml")
 
-	if err := ioutil.WriteFile(androidConfigPath, []byte("gcloud:\n  app: ./my-android-app.apk\n  test: ./my-android-test-app.apk\n"), 0644); err != nil {
+	if err := os.WriteFile(androidConfigPath, []byte("gcloud:\n  app: ./my-android-app.apk\n  test: ./my-android-test-app.apk\n"), 0644); err != nil {
 		t.Fatal(err)
 	}
-	if err := ioutil.WriteFile(iosConfigPath, []byte("gcloud:\n  test: ./my-android-app.apk\n"), 0644); err != nil {
+	if err := os.WriteFile(iosConfigPath, []byte("gcloud:\n  test: ./my-android-app.apk\n"), 0644); err != nil {
 		t.Fatal(err)
 	}
 
